@@ -1,0 +1,16 @@
+import pandas as pd
+import urllib.request
+import json
+import requests
+
+url = 'https://api.eia.gov/v2/electricity/retail-sales/data/'
+query = '?frequency=monthly&data[0]=customers&data[1]=revenue&start=2023-07&end=2024-06&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000'
+header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0'} 
+
+raw = requests.get(url+query,headers=header) 
+data = raw.json()
+
+df = pd.DataFrame.from_dict(data)
+print(df.shape)
+
+print(df.head())
