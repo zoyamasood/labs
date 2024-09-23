@@ -5,12 +5,33 @@ import requests
 
 url = 'https://api.eia.gov/v2/electricity/electric-power-operational-data/data/'
 query = '?frequency=monthly&data[0]=consumption-for-eg&data[1]=cost&start=2023-07&end=2024-06&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000'
-header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0'} 
+api_key = '?api_key=RyPevjXnCB0WwFLq2hamWt0DRU23V9ggqsVCqtNp'
 
-raw = requests.get(url+query,headers=header) 
-data = raw.json()
+response = urllib.request.urlopen(url+api_key+query)
+response_bytes = response.read()
+data = json.loads(response_bytes)
+response.close()
 
-df = pd.DataFrame.from_dict(data['response']['data'])
+df = pd.DataFrame.from_dict(data)
 df.to_csv('electricity_data.csv')
 print(df.shape)
 df.head()
+
+df.columns
+df['consumption-for-eg'].value_counts()
+
+temp = df['consumption-for-eg']
+clean_values = []
+for i in range(len(temp)):
+    if len(temp[i])==1 :
+        clean_values.append( str(temp[i][0]['Month']) )
+    elif len(temp[i])>1:
+        months = []
+        for j in range(len(temp[i])):
+            months.append( temp[i][j]['Month'] )
+        clean_values.append( str(months) )
+    else:
+        clean_values.append('')
+df['cfe_months'] = clean_values
+
+df['cfe_months'].value_counts()
