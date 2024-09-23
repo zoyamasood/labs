@@ -20,6 +20,7 @@ df.head()
 df.columns
 df['consumption-for-eg'].value_counts()
 
+# Cleaning data 
 temp = df['consumption-for-eg']
 clean_values = []
 for i in range(len(temp)):
@@ -34,4 +35,4 @@ for i in range(len(temp)):
         clean_values.append('')
 df['cfe_months'] = clean_values
 
-df['cfe_months'].value_counts()
+print(df['cfe_months'].value_counts())
