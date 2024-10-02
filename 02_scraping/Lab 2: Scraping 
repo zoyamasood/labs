@@ -1,0 +1,42 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+
+import requests # Page requests
+
+header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0'}
+url = 'https://charlottesville.craigslist.org/search/bia#search=1~gallery~0~0'
+raw = requests.get(url,headers=header) # Get page
+
+from bs4 import BeautifulSoup as soup # HTML parser
+bsObj = soup(raw.content,'html.parser') # Parse the html
+listings = bsObj.find_all(class_="cl-static-search-result") # Find all listings
+
+import re 
+
+bike_type = ['kids', 'mountain', 'bicycle', 'vintage', 'e-bike']
+data = [] # We'll save our listings in this object
+for k in range( len(listings) ):
+    title = listings[k].find('div',class_='title').get_text().lower()
+    price = listings[k].find('div',class_='price').get_text()
+    link = listings[k].find(href=True)['href']
+    # Get bike type from the title string:
+    words = title.split()
+    hits = [word for word in words if word in bike_type] 
+    if len(hits) == 0:
+        bike_type = 'missing'
+    else:
+      bike_type = hits[0]
+    # regex_search = re.search(r'', title ) # Find year references
+
+    data.append({'title':title,'price':price,'link':link,'bike_type':bike_type})
+
+## Wrangle the data
+df = pd.DataFrame.from_dict(data)
+df['price'] = df['price'].str.replace('$','')
+df['price'] = df['price'].str.replace(',','')
+df['price'] = pd.to_numeric(df['price'],errors='coerce')
+print(df.shape)
+df.to_csv('craigslist_cville_bikes.csv') 
+df.head()
