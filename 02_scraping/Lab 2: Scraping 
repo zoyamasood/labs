@@ -17,7 +17,7 @@ import re
 
 bike_type = ['kids', 'mountain', 'bicycle', 'vintage', 'e-bike']
 data = [] # We'll save our listings in this object
-for k in range( len(listings) ):
+for k in range(len(listings)):
     title = listings[k].find('div',class_='title').get_text().lower()
     price = listings[k].find('div',class_='price').get_text()
     link = listings[k].find(href=True)['href']
@@ -40,3 +40,11 @@ df['price'] = pd.to_numeric(df['price'],errors='coerce')
 print(df.shape)
 df.to_csv('craigslist_cville_bikes.csv') 
 df.head()
+
+# EDA for price:
+print(df['price'].describe())
+df['price'].hist(grid=False)
+plt.show()
+
+# Price by bike type:
+df.loc[:,['price','bike_type']].groupby('bike_type').describe()
